@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: USER-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3306/userservice   # Replace 'mydatabase' with your database name
+    username: root                      # Replace 'your_username' with your MySQL username
+    password: test                      # Replace 'your_password' with your MySQL password
+
+  jpa:
+
+    hibernate:
+      ddl-auto: update       # Set 'ddl-auto' to 'create' if you want to create tables automatically
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        show_sql: true       # Set 'show_sql' to 'false' in production environment
+
+
+server:
+  port: 8081   # Replace with your desired port number
+
+eureka:
+  instance:
+    prefer-ip-address: true
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8084/eureka
