@@ -1,31 +1,102 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:mysql://localhost:3306/userservice   # Replace 'mydatabase' with your database name
-    username: root                      # Replace 'your_username' with your MySQL username
-    password: test                      # Replace 'your_password' with your MySQL password
-
+    url: jdbc:mysql://localhost:3306/userservice
+    username: root
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-
     hibernate:
-      ddl-auto: update       # Set 'ddl-auto' to 'create' if you want to create tables automatically
-
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
-        show_sql: true       # Set 'show_sql' to 'false' in production environment
+#
+#  config:
+#    import: optional:configserver:http://localhost:8085
+#
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri:  https://dev-77584981.okta.com/oauth2/default
+#      client:
+#        registration:
+#          my-internal-client:
+#            provider: okta
+#            authorization-grant-type: client_credentials
+#            scope: internal
+#            client-id: 0oa7w65a24Px9Oyms5d7
+#            client-secret: JfsTTqODW21uapbbhKjW42sGzjcNs86GN7WL5dfU
+#
+#        provider:
+#          okta:
+#            issuer-uri:  https://dev-77584981.okta.com/oauth2/default
 
 
-server:
-  port: 8081   # Replace with your desired port number
+
+
+
+#        spring.config.import= configserver:http://localhost:8085
 
 eureka:
   instance:
     prefer-ip-address: true
-
   client:
-    register-with-eureka: true
     fetch-registry: true
+    register-with-eureka: true
     service-url:
       defaultZone: http://localhost:8084/eureka
+
+# Actuator configuration
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+  endpoint:
+    health:
+      show-details: always
+
+
+# Resilience4j configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+#
+#  retry:
+#    instances:
+#      ratingHotelService:
+#        max-attempts: 3
+#        wait-duration: 5s
+#
+#  ratelimiter:
+#    instances:
+#      userRateLimiter:
+#        limit-refresh-period: 4s
+#        limit-for-period: 2
+#        timeout-duration: 2s
+#
+#okta:
+#  oauth2:
+#    issuer: https://dev-77584981.okta.com/oauth2/default
+#    audience: api://default

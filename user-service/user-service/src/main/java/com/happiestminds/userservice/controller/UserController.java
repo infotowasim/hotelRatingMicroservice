@@ -2,6 +2,9 @@ package com.happiestminds.userservice.controller;
 
 import com.happiestminds.userservice.entities.User;
 import com.happiestminds.userservice.services.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +21,10 @@ public class UserController {
         this.userService= userService;
     }
 
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
+
+    // create user service
     @PostMapping
     public ResponseEntity<User> saveUser(@RequestBody User user){
         User saveUser = userService.saveUser(user);
@@ -26,6 +32,7 @@ public class UserController {
     }
 
 
+    // get list user service
     @GetMapping
     public ResponseEntity<List<User>> getAllUser(){
         List<User> userList = userService.getAllUser();
@@ -33,10 +40,40 @@ public class UserController {
     }
 
 
+    // get single user service
+
+    //@CircuitBreaker- Use of the Circuit Breaker pattern can allow a microservice to continue operating
+    // when a related service fails, preventing the failure from cascading and giving the failing
+    // service time to recover.
+
+    // fallbackMethod should work when required service will down or fail or not working.
+    //fallbackMethod ="ratingHotelFallback"- If I want to call RatingService or HotelService and
+    //if RatingService or HotelService not working or fail or down then you should call fallbackMethod (ratingHotelFallback)
     @GetMapping("/{id}")
+    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod ="ratingHotelFallback" ) // Implementing CircuitBreaker- this url calling ratingService and hotelService
     public ResponseEntity<User> getUserById(@PathVariable("id") String userId){
+        logger.info("Get Single User Handler: UserControoler");
         User userById = userService.getUserById(userId);
         return new ResponseEntity<>(userById, HttpStatus.OK);
+    }
+
+    // fallbackMethod should work when required service will down or fail or not working.
+    // creating fallbackMethod(ratingHotelFallback) for CircuitBreaker
+    // return type should be same as Implementing CircuitBreaker or main method of API return type same as parameter also
+    // so return type will be ResponseEntity<User>
+    // parameter should be (String userId, Exception exception)
+    public ResponseEntity<User> ratingHotelFallback(String userId, Exception exception){
+        logger.info("Fallback is executed because server is down : ",exception.getMessage());
+
+        // creating user details
+        User user = User.builder()
+                .userId("12345")
+                .name("dummy")
+                .email("dummy@gmail.com")
+                .about("This user is created dummy because some service is down")
+                .build();
+        return ResponseEntity.ok(user);
+
     }
 
 

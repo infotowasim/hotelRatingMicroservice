@@ -27,6 +27,34 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+
+
+
+<!-- actuator- help us to knows health monitor & expose the end points like service is down or up.
+Actuator is mainly used to expose operational information about the running application — health,
+metrics, info, dump, env, etc. It uses HTTP endpoints or JMX beans to enable us to interact with it.
+ Once this dependency is on the classpath, several endpoints are available for us out of the box-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+<!-- aop- continuously u can send matrix to actuator for updating -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-spring-boot2 -->
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot2</artifactId>
+		</dependency>
+
+
+
+
+
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
