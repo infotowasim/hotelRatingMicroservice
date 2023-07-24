@@ -3,6 +3,8 @@ package com.happiestminds.userservice.controller;
 import com.happiestminds.userservice.entities.User;
 import com.happiestminds.userservice.services.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -49,10 +51,21 @@ public class UserController {
     // fallbackMethod should work when required service will down or fail or not working.
     //fallbackMethod ="ratingHotelFallback"- If I want to call RatingService or HotelService and
     //if RatingService or HotelService not working or fail or down then you should call fallbackMethod (ratingHotelFallback)
+
+
+    int retryCount=1;
     @GetMapping("/{id}")
-    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod ="ratingHotelFallback" ) // Implementing CircuitBreaker- this url calling ratingService and hotelService
+//    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod ="ratingHotelFallback" ) // Implementing CircuitBreaker- this url calling ratingService and hotelService
+   //Retry
+//    @Retry(name = "ratioHotelService", fallbackMethod = "ratingHotelFallback")
+    @RateLimiter(name = "userRateLimiter", fallbackMethod = "ratingHotelFallback")
+
+
     public ResponseEntity<User> getUserById(@PathVariable("id") String userId){
         logger.info("Get Single User Handler: UserControoler");
+        // Retry count
+        logger.info("Retry count: {}", retryCount);
+        retryCount++;
         User userById = userService.getUserById(userId);
         return new ResponseEntity<>(userById, HttpStatus.OK);
     }
@@ -63,7 +76,8 @@ public class UserController {
     // so return type will be ResponseEntity<User>
     // parameter should be (String userId, Exception exception)
     public ResponseEntity<User> ratingHotelFallback(String userId, Exception exception){
-        logger.info("Fallback is executed because server is down : ",exception.getMessage());
+//        logger.info("Fallback is executed because server is down : ",exception.getMessage());
+
 
         // creating user details
         User user = User.builder()

@@ -82,20 +82,23 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 3
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
-#
-#  retry:
-#    instances:
-#      ratingHotelService:
-#        max-attempts: 3
-#        wait-duration: 5s
-#
-#  ratelimiter:
-#    instances:
-#      userRateLimiter:
-#        limit-refresh-period: 4s
-#        limit-for-period: 2
-#        timeout-duration: 2s
-#
+
+#Retry configuration
+  retry:
+    instances:
+      ratingHotelService:
+        max-attempts: 3
+        wait-duration: 5s
+
+#RateLimiter configuration
+  ratelimiter:
+    instances:
+      userRateLimiter:
+        limit-refresh-period: 4s
+        limit-for-period: 2
+        timeout-duration: 2s
+
+#Okta configuration for API GATEWAY
 #okta:
 #  oauth2:
 #    issuer: https://dev-77584981.okta.com/oauth2/default
